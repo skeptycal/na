@@ -1,3 +1,7 @@
+# todo
+
+> `todo` is a bash script designed to track and display current tasks in any project
+
 `na` is a bash function designed to make it easy to see what your next actions are for any project, right from the command line. It works with TaskPaper-formatted files (but any plain text format will do), looking for `@na` tags (or whatever you specify) in todo files in your current folder.
 
 Used with Taskpaper files, it can add new todo items quickly from the command line, automatically tagging them as next actions.
