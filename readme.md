@@ -1,4 +1,4 @@
-`na` is a bash function designed to make it easy to see what your next actions are for any project, right from the command line. It works with TaskPaper-formatted files (but any plain text format will do), looking for `@na` tags (or whatever you specify) in todo files in your current folder. 
+`na` is a bash function designed to make it easy to see what your next actions are for any project, right from the command line. It works with TaskPaper-formatted files (but any plain text format will do), looking for `@na` tags (or whatever you specify) in todo files in your current folder.
 
 Used with Taskpaper files, it can add new todo items quickly from the command line, automatically tagging them as next actions.
 
@@ -12,15 +12,17 @@ You can list next actions in files in the current directory by typing `na`. By d
 
 `na` features intelligent project matching. Every time it locates a todo file, it adds the project to the database. Once a project is recorded, you can list its actions by using any portion of the parent directories names. If your project is in `~/Sites/dev/markedapp`, you could quickly list its next actions by typing `na dev mark`. It will always look for the shortest match.
 
+`@na  <- this is an na tag`
+
 #### Recursion
 
-`na` can also recurse subdirectories to find all todo files in child folders as well. Use the `-r` switch to do a recursive search on the current directory. `na -r` with no arguments will recurse from your current location, looking for todo files in all subdirectories. 
+`na` can also recurse subdirectories to find all todo files in child folders as well. Use the `-r` switch to do a recursive search on the current directory. `na -r` with no arguments will recurse from your current location, looking for todo files in all subdirectories.
 
 Maximum depth for recursion can be controlled in the config (default is `4`). `na -r` can take a path or project title fragments as arguments as well, and will recurse from the matched directory. A configuration option allows you to have the auto-display recurse by default.
 
 #### Adding todos
 
-You can also quickly add todo items from the command line with the `-a` switch. The script will look for a file in the current directory called `todo.taskpaper` (or whatever extension you've set). 
+You can also quickly add todo items from the command line with the `-a` switch. The script will look for a file in the current directory called `todo.taskpaper` (or whatever extension you've set).
 
 If found, it will try to locate an `Inbox:` project, or create one if it doesn't exist. Any arguments after `-a` will be combined to create a new task in TaskPaper format. They will automatically be assigned as next actions (tagged `@na`) and will show up when `na` lists the tasks for the project.
 
@@ -29,7 +31,7 @@ If found, it will try to locate an `Inbox:` project, or create one if it doesn't
 1. Get the script here: <https://github.com/ttscoff/na/blob/master/na.sh>
 2. Place `na.sh` on your disk. You can put it in your home folder, but the location doesn't matter, as long as you adjust the path  accordingly (see the next step)
 3. Add this line to your `~/.bash_profile`
-		 
+
 	[[ -s "$HOME/scripts/na.sh" ]] && source "$HOME/na.sh"
 
 *The cache of used directories is stored in `~/.tdlist`. I haven't made this configurable yet.*
@@ -79,7 +81,7 @@ If found, it will try to locate an `Inbox:` project, or create one if it doesn't
 
 ### Configuration
 
-You can configure `na` by setting environment variables before you source it. 
+You can configure `na` by setting environment variables before you source it.
 
 Here are the default values, for reference:
 

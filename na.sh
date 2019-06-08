@@ -56,36 +56,57 @@ ENDHELPSTRING
     local altTag=0
     local priority=0
     local task tagValue taskTag taskNote target
-    while [ "$1" ]; do case "$1" in
-    --prompt) [[ $(history 1|sed -e "s/^[ ]*[0-9]*[ ]*//") =~ ^((cd|z|j|g|f|pushd|popd|exit)([ ]|$)) ]] && $na_prompt_command; return;;
-    -*) local opt=${1:1}; while [ "$opt" ]; do case ${opt:0:1} in
-      r) recurse=1;;
-      a) add=1;;
-      n) note=1;;
-      p)
-        if [[ $2 != '' && $2 =~ ^[0-9]+ ]]; then
-          shift; priority=$1
-        else
-          priority=0
-        fi
+    while [ "$1" ]; do
+      case "$1" in
+      --prompt)
+        [[ $(history 1 | sed -e "s/^[ ]*[0-9]*[ ]*//") =~ ^((cd|z|j|g|f|pushd|popd|exit)([ ]|$)) ]] && $na_prompt_command
+        return
         ;;
-      h) echo $helpstring >&2; return;;
-      t)
-        if [[ $2 != '' && $2 =~ ^[^\-] ]]; then
-          shift; altTag="@${1#@}"
-        else
-          altTag=''
-        fi
+      -*)
+        local opt=${1:1}
+        while [ "$opt" ]; do
+          case ${opt:0:1} in
+          r) recurse=1 ;;
+          a) add=1 ;;
+          n) note=1 ;;
+          p)
+            if [[ $2 != '' && $2 =~ ^[0-9]+ ]]; then
+              shift
+              priority=$1
+            else
+              priority=0
+            fi
+            ;;
+          h)
+            echo $helpstring >&2
+            return
+            ;;
+          t)
+            if [[ $2 != '' && $2 =~ ^[^\-] ]]; then
+              shift
+              altTag="@${1#@}"
+            else
+              altTag=''
+            fi
+            ;;
+          v)
+            if [[ $2 != '' && $2 =~ ^[^\-] ]]; then
+              shift
+              [[ $1 != '' ]] && tagValue=$1
+            fi
+            ;;
+          *)
+            fnd+="$1 "
+            break
+            ;; # unknown option detected
+          esac
+          opt="${opt:1}"
+        done
         ;;
-      v)
-        if [[ $2 != '' && $2 =~ ^[^\-] ]]; then
-          shift; [[ $1 != '' ]] && tagValue=$1
-        fi
-        ;;
-      *) fnd+="$1 "; break;; # unknown option detected
-    esac; opt="${opt:1}"; done;;
-    *) fnd+="$1 ";;
-    esac; shift; done
+      *) fnd+="$1 " ;;
+      esac
+      shift
+    done
   fi
 
   if [[ $altTag == '' && $add -ne 0 ]]; then
@@ -110,19 +131,18 @@ ENDHELPSTRING
     taskTag="$taskTag(${tagValue})"
   fi
 
-
   if [[ $add -eq 0 && ${#fnd} -eq 0 && $recurse -eq 0 ]]; then
     # Do an ls to see if there are any matching files
-    CHKFILES=$(ls -C1 *.$NA_TODO_EXT 2> /dev/null | wc -l)
+    CHKFILES=$(ls -C1 *.$NA_TODO_EXT 2>/dev/null | wc -l)
     if [[ $CHKFILES -ne 0 ]]; then
       echo -en $GREEN
 
-      echo -e "$(grep -Eh "(^\t*-|: *@.*$)" *.$NA_TODO_EXT \
-              | grep -h "$taskTag" \
-              | grep -v "$NA_DONE_TAG" \
-              | awk '{gsub(/(^[ \t\-]+| '"$(echo "$taskTag"|sed -E 's/([\(\)])/\\\1/g')"')/, "")};1' \
-              | sed -E "s/(@[^\(]*)((\()([^\)]*)(\)))/\\$CYAN\1\3\\$YELLOW\4\\$CYAN\5\\$GREEN/g")"
-      echo "`pwd`" >> ~/.tdlist
+      echo -e "$(grep -Eh "(^\t*-|: *@.*$)" *.$NA_TODO_EXT |
+        grep -h "$taskTag" |
+        grep -v "$NA_DONE_TAG" |
+        awk '{gsub(/(^[ \t\-]+| '"$(echo "$taskTag" | sed -E 's/([\(\)])/\\\1/g')"')/, "")};1' |
+        sed -E "s/(@[^\(]*)((\()([^\)]*)(\)))/\\$CYAN\1\3\\$YELLOW\4\\$CYAN\5\\$GREEN/g")"
+      echo "$(pwd)" >>~/.tdlist
       sort -u ~/.tdlist -o ~/.tdlist
     fi
     return
@@ -142,25 +162,25 @@ ENDHELPSTRING
         taskNote=$(cat)
       fi
 
-      targetcount=$(ls -C1 *.$NA_TODO_EXT 2> /dev/null | wc -l | tr -d " ")
+      targetcount=$(ls -C1 *.$NA_TODO_EXT 2>/dev/null | wc -l | tr -d " ")
       if [[ $targetcount == "0" ]]; then
         local proj=${PWD##*/}
         local newfile="${proj}.${NA_TODO_EXT}"
         echo "Creating new todo file: $newfile"
         target="$newfile"
         if [ ! -e $target ]; then
-            touch $target
-            echo -e "Inbox:\n$proj:\n\tNew Features:\n\tIdeas:\n\tBugs:\nArchive:\nSearch Definitions:\n\tTop Priority @search(@priority = 5 and not @done)\n\tHigh Priority @search(@priority > 3 and not @done)\n\tMaybe @search(@maybe)\n\tNext @search(@na and not @done and not project = \"Archive\")\n" >> $target
+          touch $target
+          echo -e "Inbox:\n$proj:\n\tNew Features:\n\tIdeas:\n\tBugs:\nArchive:\nSearch Definitions:\n\tTop Priority @search(@priority = 5 and not @done)\n\tHigh Priority @search(@priority > 3 and not @done)\n\tMaybe @search(@maybe)\n\tNext @search(@na and not @done and not project = \"Archive\")\n" >>$target
         fi
       else
-        declare -a fileList=( *\.*$NA_TODO_EXT* )
+        declare -a fileList=(*\.*$NA_TODO_EXT*)
         if [[ ${#fileList[*]} == 1 ]]; then
           target=${fileList[0]}
         elif [[ ${#fileList[*]} -gt 1 ]]; then
           local counter=1
           for f in ${fileList[@]}; do
             echo "$counter) $f"
-            counter=$(( $counter+1 ))
+            counter=$(($counter + 1))
           done
           if [ $counter -gt 9 ]; then
             read -p "Add to which file? "
@@ -168,7 +188,7 @@ ENDHELPSTRING
             read -n1 -p "Add to which file? "
           fi
           if [[ $REPLY =~ ^[0-9]+$ ]]; then
-            target=${fileList[$(($REPLY-1))]}
+            target=${fileList[$(($REPLY - 1))]}
           else
             return
           fi
@@ -217,21 +237,22 @@ ENDNOTE
       todofile.close
 SCRIPT
       echo "Added to $target"
-   else # no text given
+    else # no text given
       echo "Usage: na -a \"text to be added to todo.$NA_TODO_EXT inbox\""
-      echo "See `na -h` for help"
+      echo "See $(na -h) for help"
       return
-   fi
+    fi
   else
     _weed_cache_file
     if [[ -d "${fnd%% *}" ]]; then
-      cd "${fnd%% *}" 2> /dev/null
-      target="`pwd`"
-      cd - >> /dev/null
-      echo "${target%/}" >> ~/.tdlist
+      cd "${fnd%% *}" 2>/dev/null
+      target="$(pwd)"
+      cd - >>/dev/null
+      echo "${target%/}" >>~/.tdlist
       sort -u ~/.tdlist -o ~/.tdlist
     else
-      target=$(ruby <<SCRIPTTIME
+      target=$(
+        ruby <<SCRIPTTIME
       if (File.exists?(File.expand_path('~/.tdlist')))
         query = "$fnd"
         input = File.open(File.expand_path('~/.tdlist'),'r').read
@@ -245,21 +266,21 @@ SCRIPT
         puts res[0]
       end
 SCRIPTTIME
-)
+      )
     fi
     if [[ $recurse -eq 1 ]]; then
       echo -e "$DKGRAY[$target+]:"
       dirlist=$(find -maxdepth $NA_MAX_DEPTH "$target" -name "*.$NA_TODO_EXT" -exec grep -EH "(^\t*-|: *@.*$)" {} \; | grep -v "$NA_DONE_TAG" | grep -H "$taskTag")
       _na_fix_output "$dirlist"
     else
-      CHKFILES=$(ls -C1 $target/*.$NA_TODO_EXT 2> /dev/null | wc -l)
+      CHKFILES=$(ls -C1 $target/*.$NA_TODO_EXT 2>/dev/null | wc -l)
       if [ $CHKFILES -ne 0 ]; then
         echo -e "$DKGRAY[$target]:$GREEN"
-        echo -e "$(grep -EH "(^\t*-|: *@.*$)" "$target"/*.$NA_TODO_EXT \
-          | grep -h "$taskTag" \
-          | grep -v "$NA_DONE_TAG" \
-          | awk '{gsub(/(^[ \t\-]+| '"$(echo "$taskTag"|sed -E 's/([\(\)])/\\\1/g')"')/, "")};1' \
-          | sed -E "s/(@[^\(]*)((\()([^\)]*)(\)))/\\$CYAN\1\3\\$YELLOW\4\\$CYAN\5\\$GREEN/g")"
+        echo -e "$(grep -EH "(^\t*-|: *@.*$)" "$target"/*.$NA_TODO_EXT |
+          grep -h "$taskTag" |
+          grep -v "$NA_DONE_TAG" |
+          awk '{gsub(/(^[ \t\-]+| '"$(echo "$taskTag" | sed -E 's/([\(\)])/\\\1/g')"')/, "")};1' |
+          sed -E "s/(@[^\(]*)((\()([^\)]*)(\)))/\\$CYAN\1\3\\$YELLOW\4\\$CYAN\5\\$GREEN/g")"
       fi
     fi
   fi
@@ -299,6 +320,8 @@ SCRIPTTIME
 
 _weed_cache_file() {
   ruby <<WEEDTIME
+
+  # TODO: Check for git repo and do file operations in top level
     output = []
     tdlist = File.expand_path('~/.tdlist')
 
@@ -317,7 +340,7 @@ _weed_cache_file() {
       # end
     end
 WEEDTIME
-  # TODO: Check for git repo and do file operations in top level
+
 }
 
 if [[ $NA_AUTO_LIST_FOR_DIR -eq 1 ]]; then
