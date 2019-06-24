@@ -16,7 +16,7 @@ You can list next actions in files in the current directory by typing `na`. By d
 
 `na` features intelligent project matching. Every time it locates a todo file, it adds the project to the database. Once a project is recorded, you can list its actions by using any portion of the parent directories names. If your project is in `~/Sites/dev/markedapp`, you could quickly list its next actions by typing `na dev mark`. It will always look for the shortest match.
 
-`@na  <- this is an na tag`
+`@na <- this is an na tag`
 
 #### Recursion
 
@@ -33,46 +33,28 @@ If found, it will try to locate an `Inbox:` project, or create one if it doesn't
 ### Installation
 
 1. Get the script here: <https://github.com/ttscoff/na/blob/master/na.sh>
-2. Place `na.sh` on your disk. You can put it in your home folder, but the location doesn't matter, as long as you adjust the path  accordingly (see the next step)
+2. Place `na.sh` on your disk. You can put it in your home folder, but the location doesn't matter, as long as you adjust the path accordingly (see the next step)
 3. Add this line to your `~/.bash_profile`
 
-	[[ -s "$HOME/scripts/na.sh" ]] && source "$HOME/na.sh"
+   [[ -s "$HOME/scripts/na.sh" ]] && source "\$HOME/na.sh"
 
-*The cache of used directories is stored in `~/.tdlist`. I haven't made this configurable yet.*
+_The cache of used directories is stored in `~/.tdlist`. I haven't made this configurable yet._
 
 ### Usage
 
--r        recurse 3 directories deep and concatenate all $NA_TODO_EXT files
+-r recurse 3 directories deep and concatenate all $NA_TODO_EXT files
 -a [todo] add a todo to todo.$NA_TODO_EXT in the current dir
--n        with -a, prompt for a note after reading task
--t        specify an alternate tag (default @na)
-          pass empty quotes to apply no automatic tag
--p [X]    add a @priority(X) tag (with -a)
--v        search for tag with specific value (requires -t)
--h        show a brief help message
+-n with -a, prompt for a note after reading task
+-t specify an alternate tag (default @na)
+pass empty quotes to apply no automatic tag
+-p [X] add a @priority(X) tag (with -a)
+-v search for tag with specific value (requires -t)
+-h show a brief help message
 
-- **Add todos**
-	- `na -a ["todo item"]`: add new todo to project's `.taskpaper` file inbox in the current folder
-		- If no "todo item" is specified, it will prompt you for input
-		- `-n`: used with -a, prompt for a note after reading task
-		- `-t`: specify an alternate tag (default @na)
-			+ Pass empty quotes to apply no automatic tag
-			+ You can add additional @tags in the task description
-		- `-p [X]` add a @priority(X) tag
-- **List todos**
-	- `na` lists all next actions in the current folder's taskpaper file
-		- na caches folders it's used in, so you can use an optional argument to match the dirname of another folder (`na marked`)
-		- `-t` (without `-a`) search for a specific tag
-			+ `-v` search for a tag with a specific value, e.g. `na -t priority -v 5`
-		- `-p` (without `-a`) search for items with a specific priority value (shortcut for `na -t priority -v X`)
-	- `-r` (recurse and concatenate `@na` in todo files up to 3 levels deep, works with optional argument to list another folder)
-	- for `na` and `na -r`, additional arguments are parsed for best (and shortest) project match
-- **Auto-list todos when changing directory**
-	- only triggers on directory change command (`cd`,`z`,`j`,`g`,`f`)
-	- turn off auto-display entirely in the config
-	- set whether or not to auto-display recursively in the config
-- **Help**
-	- `-h` (display help)
+- **Add todos** - `na -a ["todo item"]`: add new todo to project's `.taskpaper` file inbox in the current folder - If no "todo item" is specified, it will prompt you for input - `-n`: used with -a, prompt for a note after reading task - `-t`: specify an alternate tag (default @na) + Pass empty quotes to apply no automatic tag + You can add additional @tags in the task description - `-p [X]` add a @priority(X) tag
+- **List todos** - `na` lists all next actions in the current folder's taskpaper file - na caches folders it's used in, so you can use an optional argument to match the dirname of another folder (`na marked`) - `-t` (without `-a`) search for a specific tag + `-v` search for a tag with a specific value, e.g. `na -t priority -v 5` - `-p` (without `-a`) search for items with a specific priority value (shortcut for `na -t priority -v X`) - `-r` (recurse and concatenate `@na` in todo files up to 3 levels deep, works with optional argument to list another folder) - for `na` and `na -r`, additional arguments are parsed for best (and shortest) project match
+- **Auto-list todos when changing directory** - only triggers on directory change command (`cd`,`z`,`j`,`g`,`f`) - turn off auto-display entirely in the config - set whether or not to auto-display recursively in the config
+- **Help** - `-h` (display help)
 
 #### Examples
 
@@ -89,10 +71,10 @@ You can configure `na` by setting environment variables before you source it.
 
 Here are the default values, for reference:
 
-	export NA_TODO_EXT=taskpaper
-	export NA_NEXT_TAG=@na
-	export NA_DONE_TAG=@done
-	export NA_MAX_DEPTH=3
-	export NA_AUTO_LIST_FOR_DIR=1 # 0 to disable
-	export NA_AUTO_LIST_IS_RECURSIVE=0
-	[[ -s "$HOME/scripts/na.sh" ]] && source "$HOME/na.sh"
+    export NA_TODO_EXT=taskpaper
+    export NA_NEXT_TAG=@na
+    export NA_DONE_TAG=@done
+    export NA_MAX_DEPTH=3
+    export NA_AUTO_LIST_FOR_DIR=1 # 0 to disable
+    export NA_AUTO_LIST_IS_RECURSIVE=0
+    [[ -s "$HOME/scripts/na.sh" ]] && source "$HOME/na.sh"
